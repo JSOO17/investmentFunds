@@ -1,87 +1,36 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  MongoDBInstance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t2.micro
-      ImageId: ami-0abcdef1234567890 # Cambia a una AMI de Ubuntu compatible
-      KeyName: your-key-pair # Debes tener una clave EC2 para acceder
-      SecurityGroupIds:
-        - !Ref MongoDBSecurityGroup
-
-  MongoDBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow MongoDB access
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 27017
-          ToPort: 27017
-          CidrIp: 0.0.0.0/0 # Cambia esto para mayor seguridad
-
-  ECSCluster:
+  MyCluster:
     Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: my-cluster
 
-  TaskDefinition:
+  MyApiTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: my-task
+      Family: myapi-task
+      NetworkMode: bridge
+      RequiresCompatibilities:
+        - EC2
       ContainerDefinitions:
         - Name: myapi
-          Image: myapi-image-url # Debes subir tu imagen a ECR o DockerHub
+          Image: 058264167073.dkr.ecr.us-east-1.amazonaws.com/investment-funds-api:latest
+          Essential: true
           PortMappings:
             - ContainerPort: 80
               HostPort: 80
-        - Name: my-angular-app
-          Image: my-angular-app-image-url # Debes subir tu imagen a ECR o DockerHub
-          PortMappings:
-            - ContainerPort: 80
-              HostPort: 80
+          Memory: 512
+          Cpu: 256
 
-  ECSService:
+  MyApiService:
     Type: AWS::ECS::Service
     Properties:
-      Cluster: !Ref ECSCluster
-      TaskDefinition: !Ref TaskDefinition
+      Cluster: !Ref MyCluster
       DesiredCount: 1
-
-  ALB:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Name: my-load-balancer
-      Subnets:
-        - subnet-0bb1c79de4EXAMPLE # Debes especificar tus subnets
-      SecurityGroups:
-        - !Ref ALBSecurityGroup
-
-  ALBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow HTTP and HTTPS
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-
-  ALBListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      DefaultActions:
-        - Type: fixed-response
-          FixedResponseConfig:
-            StatusCode: 200
-            ContentType: text/plain
-            MessageBody: OK
-      LoadBalancerArn: !Ref ALB
-      Port: 80
-      Protocol: HTTP
+      LaunchType: EC2
+      TaskDefinition: !Ref MyApiTaskDefinition
 
 Outputs:
-  LoadBalancerDNS:
-    Description: "DNS name of the Load Balancer"
-    Value: !GetAtt ALB.DNSName
+  ApiServiceURL:
+    Description: "URL of the API Service"
+    Value: !Sub "http://${MyApiService.Arn}"
