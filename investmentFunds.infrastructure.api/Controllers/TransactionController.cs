@@ -1,7 +1,9 @@
 ﻿using InvestmentFunds.Application.DTO.Response;
 using InvestmentFunds.Application.Services.Interfaces;
+using InvestmentFunds.Infrastructure.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Net.Mime;
 
 namespace InvestmentFunds.Infrastructure.Api.Controllers
 {
@@ -34,7 +36,10 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
                 var msg = "Something was wrong";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.InternalServerError), msg);
+                return StatusCode(((int)HttpStatusCode.InternalServerError), new ApiResponse
+                {
+                    Message = msg
+                });
             }
         }
     }

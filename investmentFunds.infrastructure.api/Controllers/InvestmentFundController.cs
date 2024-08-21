@@ -1,6 +1,7 @@
 ﻿using InvestmentFunds.Application.DTO.Response;
 using InvestmentFunds.Application.Services.Interfaces;
 using InvestmentFunds.Domain.Exceptions;
+using InvestmentFunds.Infrastructure.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -32,9 +33,13 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Something was wrong");
+                var msg = "Something was wrong";
+                _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.InternalServerError), ex.Message);
+                return StatusCode(((int)HttpStatusCode.InternalServerError), new ApiResponse
+                {
+                    Message = msg
+                });
             }
         }
 
@@ -50,14 +55,20 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
                 var msg = $"Investment found {id} was not found.";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.NotFound), msg);
+                return StatusCode(((int)HttpStatusCode.NotFound), new ApiResponse
+                {
+                    Message = msg
+                });
             }
             catch (Exception ex)
             {
                 var msg = "Something was wrong";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.InternalServerError), msg);
+                return StatusCode(((int)HttpStatusCode.InternalServerError), new ApiResponse
+                {
+                    Message = msg
+                });
             }
         }
     }

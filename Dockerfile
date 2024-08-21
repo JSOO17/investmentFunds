@@ -5,6 +5,9 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+ARG MongoDbConnectionString
+ENV MongoDbConnectionString=$MongoDbConnectionString
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["investmentFunds.infrastructure.api/InvestmentFunds.Infrastructure.Api.csproj", "investmentFunds.infrastructure.api/"]

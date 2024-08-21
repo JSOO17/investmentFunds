@@ -2,6 +2,7 @@
 using InvestmentFunds.Application.Services.Interfaces;
 using InvestmentFunds.Domain.Exceptions;
 using InvestmentFunds.Infrastructure.Api.Controllers;
+using InvestmentFunds.Infrastructure.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -61,7 +62,9 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             // Assert
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.NotFound, objectResult.StatusCode);
-            Assert.AreEqual($"Investor {testId} was not found.", objectResult.Value);
+            var response = objectResult.Value as ApiResponse;
+            Assert.IsNotNull(response);
+            Assert.AreEqual($"Investor {testId} was not found.", response.Message);
         }
 
         [TestMethod]
@@ -80,7 +83,9 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var objectResult = result.Result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.InternalServerError, objectResult.StatusCode);
-            Assert.AreEqual("Something was wrong", objectResult.Value);
+            var response = objectResult.Value as ApiResponse;
+            Assert.IsNotNull(response);
+            Assert.AreEqual("Something was wrong", response.Message);
         }
     }
 }

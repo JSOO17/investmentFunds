@@ -110,7 +110,6 @@ namespace InvestmentFunds.Infrastructure.Api.Extensions
         public static void ConfigureSwagger(this IServiceCollection services)
         {
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
         }
 
         public static void ConfigureCors(this IServiceCollection services)

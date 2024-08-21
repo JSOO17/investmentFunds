@@ -3,6 +3,7 @@ using InvestmentFunds.Application.DTO.Response;
 using InvestmentFunds.Application.Services.Interfaces;
 using InvestmentFunds.Domain.Exceptions;
 using InvestmentFunds.Infrastructure.Api.Controllers;
+using InvestmentFunds.Infrastructure.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -40,7 +41,7 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var result = await _controller.Get();
 
             // Assert
-            var okResult = result.Result as ObjectResult;
+            var okResult = result.Result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual((int)HttpStatusCode.OK, okResult.StatusCode);
             Assert.AreEqual(mockResponse, okResult.Value);
@@ -59,7 +60,9 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var objectResult = result.Result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.InternalServerError, objectResult.StatusCode);
-            Assert.AreEqual("Something was wrong", objectResult.Value);
+            var response = objectResult.Value as ApiResponse;
+            Assert.IsNotNull(response);
+            Assert.AreEqual("Something was wrong", response.Message);
         }
 
         [TestMethod]
@@ -73,7 +76,7 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var result = await _controller.Post(request);
 
             // Assert
-            var objectResult = result as StatusCodeResult;
+            var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.Created, objectResult.StatusCode);
         }
@@ -89,10 +92,10 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var result = await _controller.Post(request);
 
             // Assert
-            var objectResult = result as ObjectResult;
+            var objectResult = result as ContentResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.NotFound, objectResult.StatusCode);
-            Assert.AreEqual($"InvestmentFund {request.InvestmentFundId} was not found.", objectResult.Value);
+            Assert.AreEqual($"InvestmentFund {request.InvestmentFundId} was not found.", objectResult.Content);
         }
 
         [TestMethod]
@@ -109,7 +112,9 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.BadRequest, objectResult.StatusCode);
-            Assert.AreEqual("Invalid operation", objectResult.Value);
+            var response = objectResult.Value as ApiResponse;
+            Assert.IsNotNull(response);
+            Assert.AreEqual("Invalid operation", response.Message);
         }
 
         [TestMethod]
@@ -123,7 +128,7 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var result = await _controller.Delete(request);
 
             // Assert
-            var objectResult = result as OkResult;
+            var objectResult = result as OkObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.OK, objectResult.StatusCode);
         }
@@ -142,7 +147,9 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.NotFound, objectResult.StatusCode);
-            Assert.AreEqual($"Subscription {request.Id} was not found.", objectResult.Value);
+            var response = objectResult.Value as ApiResponse;
+            Assert.IsNotNull(response);
+            Assert.AreEqual($"Subscription {request.Id} was not found.", response.Message);
         }
 
         [TestMethod]
@@ -159,7 +166,9 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.BadRequest, objectResult.StatusCode);
-            Assert.AreEqual("Invalid operation", objectResult.Value);
+            var response = objectResult.Value as ApiResponse;
+            Assert.IsNotNull(response);
+            Assert.AreEqual("Invalid operation", response.Message);
         }
 
         [TestMethod]
@@ -176,7 +185,9 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.InternalServerError, objectResult.StatusCode);
-            Assert.AreEqual("Something was wrong", objectResult.Value);
+            var response = objectResult.Value as ApiResponse;
+            Assert.IsNotNull(response);
+            Assert.AreEqual("Something was wrong", response.Message);
         }
     }
 }

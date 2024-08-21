@@ -1,6 +1,7 @@
 ﻿using InvestmentFunds.Application.DTO.Response;
 using InvestmentFunds.Application.Services.Interfaces;
 using InvestmentFunds.Infrastructure.Api.Controllers;
+using InvestmentFunds.Infrastructure.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -62,7 +63,9 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var objectResult = result.Result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual((int)HttpStatusCode.InternalServerError, objectResult.StatusCode);
-            Assert.AreEqual("Something was wrong", objectResult.Value);
+            var response = objectResult.Value as ApiResponse;
+            Assert.IsNotNull(response);
+            Assert.AreEqual("Something was wrong", response.Message);
         }
     }
 }

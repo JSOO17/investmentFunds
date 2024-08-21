@@ -2,8 +2,11 @@
 using InvestmentFunds.Application.DTO.Response;
 using InvestmentFunds.Application.Services.Interfaces;
 using InvestmentFunds.Domain.Exceptions;
+using InvestmentFunds.Infrastructure.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Net.Mime;
+using System.Text.Json.Serialization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -38,7 +41,10 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
                 var msg = "Something was wrong";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.InternalServerError), msg);
+                return StatusCode(((int)HttpStatusCode.InternalServerError), new ApiResponse
+                {
+                    Message = msg
+                });
             }
         }
 
@@ -53,27 +59,38 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
                 var msg = $"User {request.InvestorId} has been subscribed to {request.InvestmentFundId} InvestmentFund with a payment {request.AmountPayment}";
                 _logger.LogInformation(msg);
 
-                return StatusCode((int)HttpStatusCode.Created, msg);
+                return StatusCode((int)HttpStatusCode.Created, new ApiResponse
+                {
+                    Message = msg
+                });
             }
             catch (ResourceNotFoundException ex)
             {
                 var msg = $"InvestmentFund {request.InvestmentFundId} was not found.";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.NotFound), msg);
+                return new ContentResult
+                {
+                    Content = msg,
+                    ContentType = MediaTypeNames.Text.Plain,
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogError(ex, "Something was wrong");
 
-                return BadRequest(ex.Message);
+                return StatusCode(((int)HttpStatusCode.BadRequest), new ApiResponse { Message = ex.Message });
             }
             catch (Exception ex)
             {
                 var msg = "Something was wrong";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.InternalServerError), msg);
+                return StatusCode(((int)HttpStatusCode.InternalServerError), new ApiResponse
+                {
+                    Message = msg
+                });
             }
         }
 
@@ -89,26 +106,38 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
 
                 _logger.LogInformation(msg);
 
-                return Ok(msg);
+                return Ok(new ApiResponse
+                {
+                    Message= msg
+                });
             }
             catch (ResourceNotFoundException ex)
             {
                 _logger.LogError(ex, "Something was wrong");
 
-                return NotFound($"Subscription {request.Id} was not found.");
+                return StatusCode(((int)HttpStatusCode.NotFound), new ApiResponse
+                {
+                    Message = $"Subscription {request.Id} was not found."
+                });
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogError(ex, "Something was wrong");
 
-                return StatusCode(((int)HttpStatusCode.BadRequest), ex.Message);
+                return StatusCode(((int)HttpStatusCode.BadRequest), new ApiResponse
+                {
+                    Message = ex.Message
+                });
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 var msg = "Something was wrong";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.InternalServerError), msg);
+                return StatusCode(((int)HttpStatusCode.InternalServerError), new ApiResponse
+                {
+                    Message = msg
+                });
             }
         }
     }
