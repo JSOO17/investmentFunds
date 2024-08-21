@@ -1,0 +1,69 @@
+name: SonarCloud
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+env:
+  AWS_REGION: 'us-east-1'
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_ECR_REPO_NAME: 'food'
+  AWS_ECR_REPO_LINK: '058264167073.dkr.ecr.us-east-1.amazonaws.com/investment-funds-api:latest'
+  AWS_ECR_REPO_PATH: '058264167073.dkr.ecr.us-east-1.amazonaws.com'
+  AWS_EB_ENVIRONMENT: 'investment-funds-api-dev'
+  AWS_EB_APPLICATION: 'investment-funds-api'
+jobs:
+  deploy-ecr:
+    #needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build and push Docker image to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push Docker image to ECR
+        run: |
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{env.AWS_ECR_REPO_PATH}}
+          docker build -t ${{env.AWS_ECR_REPO_NAME}} .
+          docker tag ${{env.AWS_ECR_REPO_NAME}}:latest ${{env.AWS_ECR_REPO_LINK}}:latest
+          docker push ${{env.AWS_ECR_REPO_LINK}}:latest
+  
+  
+  deploy-eb:
+    needs: deploy-ecr
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+      - name: Generate deployment package
+        run: zip -r deploy.zip ./Dockerrun.aws.json
+      - name: Deploy to EB
+        id: deploy
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ env.AWS_EB_APPLICATION }}
+          environment_name: ${{ env.AWS_EB_ENVIRONMENT }}
+          version_label: 'latest'
+          region: ${{ env.AWS_REGION }}
+          deployment_package: deploy.zip         # only use for set the latest versions
+      - name: SendMessage
+        if: always() && steps.deploy.outcome == 'failure'
+        uses: teknatha136/actions-google-chat-text-message@main
+        with:
+            google-chat-webhook: https://chat.googleapis.com/v1/spaces/AAAAKMSYkyE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=maQb_cpB9X7RjonmMZDkXYjb_2J2EAX0VBl43nl_3Vk
+            text-message: Falló el deploy mipana. Ambiente- ${{ env.AWS_EB_ENVIRONMENT }}
