@@ -31,7 +31,7 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
                 var msg = $"Investor {id} was not found.";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.BadRequest), msg);
+                return StatusCode(((int)HttpStatusCode.NotFound), msg);
             }
             catch (Exception ex)
             {

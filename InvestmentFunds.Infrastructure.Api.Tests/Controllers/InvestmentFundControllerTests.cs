@@ -91,7 +91,7 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             // Assert
             var statusCodeResult = result.Result as ObjectResult;
             Assert.IsNotNull(statusCodeResult);
-            Assert.AreEqual((int)HttpStatusCode.BadRequest, statusCodeResult.StatusCode);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, statusCodeResult.StatusCode);
         }
 
         [TestMethod]

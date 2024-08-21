@@ -91,7 +91,7 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             // Assert
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
-            Assert.AreEqual((int)HttpStatusCode.BadRequest, objectResult.StatusCode);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, objectResult.StatusCode);
             Assert.AreEqual($"InvestmentFund {request.InvestmentFundId} was not found.", objectResult.Value);
         }
 
@@ -141,7 +141,7 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             // Assert
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
-            Assert.AreEqual((int)HttpStatusCode.BadRequest, objectResult.StatusCode);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, objectResult.StatusCode);
             Assert.AreEqual($"Subscription {request.Id} was not found.", objectResult.Value);
         }
 

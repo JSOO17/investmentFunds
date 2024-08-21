@@ -29,7 +29,7 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
             {
                 var result = await _subscriptionServices.GetAll();
 
-                _logger.LogInformation($"Fetching {result.Count} investment funds");
+                _logger.LogInformation($"Fetching {result.Count} subscriptions");
 
                 return Ok(result);
             }
@@ -50,16 +50,17 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
             {
                 await _subscriptionServices.Subscribe(request);
 
-                _logger.LogInformation($"User {request.InvestorId} has been subscribed to {request.InvestmentFundId} InvestmentFund with a payment {request.AmountPayment}");
+                var msg = $"User {request.InvestorId} has been subscribed to {request.InvestmentFundId} InvestmentFund with a payment {request.AmountPayment}";
+                _logger.LogInformation(msg);
 
-                return StatusCode((int)HttpStatusCode.Created);
+                return StatusCode((int)HttpStatusCode.Created, msg);
             }
             catch (ResourceNotFoundException ex)
             {
                 var msg = $"InvestmentFund {request.InvestmentFundId} was not found.";
                 _logger.LogError(ex, msg);
 
-                return StatusCode(((int)HttpStatusCode.BadRequest), msg);
+                return StatusCode(((int)HttpStatusCode.NotFound), msg);
             }
             catch (InvalidOperationException ex)
             {
@@ -84,15 +85,17 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
             {
                 await _subscriptionServices.Cancel(request.Id, request.InvestorId);
 
-                _logger.LogInformation($"User {request.InvestorId} has been canceled to subscription {request.Id}.");
+                var msg = $"User {request.InvestorId} has been canceled to subscription {request.Id}.";
 
-                return Ok();
+                _logger.LogInformation(msg);
+
+                return Ok(msg);
             }
             catch (ResourceNotFoundException ex)
             {
                 _logger.LogError(ex, "Something was wrong");
 
-                return BadRequest($"Subscription {request.Id} was not found.");
+                return NotFound($"Subscription {request.Id} was not found.");
             }
             catch (InvalidOperationException ex)
             {

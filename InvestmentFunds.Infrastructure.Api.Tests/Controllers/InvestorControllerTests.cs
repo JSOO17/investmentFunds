@@ -60,7 +60,7 @@ namespace InvestmentFunds.Infrastructure.Api.Tests.Controllers
             var objectResult = result.Result as ObjectResult;
             // Assert
             Assert.IsNotNull(objectResult);
-            Assert.AreEqual((int)HttpStatusCode.BadRequest, objectResult.StatusCode);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, objectResult.StatusCode);
             Assert.AreEqual($"Investor {testId} was not found.", objectResult.Value);
         }
 

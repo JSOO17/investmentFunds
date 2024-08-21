@@ -25,7 +25,7 @@ namespace InvestmentFunds.Infrastructure.Api.Controllers
             {
                 var result = await _transactionServices.GetAll();
 
-                _logger.LogInformation($"Fetching {result.Count} investment funds");
+                _logger.LogInformation($"Fetching {result.Count} transactions");
 
                 return Ok(result);
             }

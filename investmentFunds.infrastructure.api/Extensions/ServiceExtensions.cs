@@ -18,7 +18,9 @@ namespace InvestmentFunds.Infrastructure.Api.Extensions
     {
         public static void ConfigureMongoDb(this IServiceCollection services, IConfiguration configuration)
         {
-            var mongoClient = new MongoClient(configuration.GetConnectionString("MongoDb"));
+            var connectionString = Environment.GetEnvironmentVariable("MongoDbConnectionString");
+            Console.WriteLine($"MongoDB Connection String: {connectionString}");
+            var mongoClient = new MongoClient(connectionString);
             var databaseName = configuration.GetSection("DatabaseSettings:DatabaseName").Value;
             var mongoDatabase = mongoClient.GetDatabase(databaseName);
 
